@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bessie — SVG tracing overlay</title>
+<style>
+  :root {
+    --bg: #f6f5f3;
+    --panel: #fff;
+    --line: #d8d4cf;
+    --text: #23201d;
+    --muted: #6d6862;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font: 13px/1.5 ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+    color: var(--text);
+    background: var(--bg);
+  }
+
+  header {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 18px;
+    padding: 10px 16px;
+    background: var(--panel);
+    border-bottom: 1px solid var(--line);
+  }
+  .ctl { display: flex; align-items: center; gap: 7px; white-space: nowrap; }
+  .ctl label { color: var(--muted); }
+  input[type=range] { width: 110px; }
+  code {
+    font: 12px/1 ui-monospace, SFMono-Regular, Menlo, monospace;
+    background: var(--bg);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    padding: 3px 6px;
+  }
+  #readout { min-width: 128px; }
+  .spacer { flex: 1; }
+  #status { color: var(--muted); }
+  #status.err { color: #b3261e; }
+
+  /* The stage: image and SVG share one box, so they line up exactly. */
+  #stage {
+    position: relative;
+    width: 100%;
+    margin: 0 auto;
+    aspect-ratio: 2000 / 982;
+    background: #fff;
+    cursor: crosshair;
+  }
+  #stage > * {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+  #photo { display: block; object-fit: fill; }
+  #art svg, #grid { display: block; }
+  [hidden] { display: none !important; }
+  #wrap { padding: 16px; overflow-x: auto; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="ctl">
+    <label for="photoOpacity">photo</label>
+    <input type="range" id="photoOpacity" min="0" max="100" value="100">
+  </div>
+  <div class="ctl">
+    <label for="artOpacity">svg</label>
+    <input type="range" id="artOpacity" min="0" max="100" value="100">
+  </div>
+  <div class="ctl">
+    <label for="zoom">zoom</label>
+    <input type="range" id="zoom" min="50" max="400" value="100">
+  </div>
+  <div class="ctl">
+    <input type="checkbox" id="showGrid">
+    <label for="showGrid">grid</label>
+  </div>
+  <div class="ctl">
+    <input type="checkbox" id="autoReload" checked>
+    <label for="autoReload">auto-reload</label>
+  </div>
+  <div class="ctl"><code id="readout">—</code></div>
+  <div class="spacer"></div>
+  <div id="status"></div>
+</header>
+
+<div id="wrap">
+  <div id="stage">
+    <img id="photo" src="bessie.jpeg" alt="Reference line drawing of a van named Bessie">
+    <div id="art"></div>
+    <svg id="grid" viewBox="0 0 2000 982" hidden>
+      <defs>
+        <pattern id="minor" width="50" height="50" patternUnits="userSpaceOnUse">
+          <path d="M50 0 L0 0 L0 50" fill="none" stroke="#2f6fd0" stroke-width="0.5" opacity="0.35"/>
+        </pattern>
+        <pattern id="major" width="250" height="250" patternUnits="userSpaceOnUse">
+          <rect width="250" height="250" fill="url(#minor)"/>
+          <path d="M250 0 L0 0 L0 250" fill="none" stroke="#2f6fd0" stroke-width="1.5" opacity="0.55"/>
+        </pattern>
+      </defs>
+      <rect width="2000" height="982" fill="url(#major)"/>
+    </svg>
+  </div>
+</div>
+
+<script>
+const SVG_PATH = 'bessie_ventures.svg';
+const VB = { w: 2000, h: 982 };
+
+const stage    = document.getElementById('stage');
+const art      = document.getElementById('art');
+const grid     = document.getElementById('grid');
+const status   = document.getElementById('status');
+const readout  = document.getElementById('readout');
+
+let lastText = null;
+
+async function loadSvg() {
+  try {
+    const res = await fetch(SVG_PATH + '?t=' + Date.now(), { cache: 'no-store' });
+    if (!res.ok) throw new Error(res.status + ' ' + res.statusText);
+    const text = await res.text();
+    if (text !== lastText) {
+      lastText = text;
+      art.innerHTML = text;
+      // Let the inline SVG stretch to the stage rather than use its own width/height.
+      const el = art.querySelector('svg');
+      if (el) { el.removeAttribute('width'); el.removeAttribute('height'); }
+      stamp('reloaded');
+    }
+    status.classList.remove('err');
+  } catch (err) {
+    status.classList.add('err');
+    status.textContent = 'cannot load ' + SVG_PATH + ' (' + err.message + ') — serve over http, e.g. python3 -m http.server';
+  }
+}
+
+function stamp(what) {
+  const t = new Date().toLocaleTimeString();
+  status.textContent = what + ' ' + t;
+}
+
+/* --- controls --- */
+document.getElementById('photoOpacity').addEventListener('input', e => {
+  document.getElementById('photo').style.opacity = e.target.value / 100;
+});
+document.getElementById('artOpacity').addEventListener('input', e => {
+  art.style.opacity = e.target.value / 100;
+});
+document.getElementById('zoom').addEventListener('input', e => {
+  stage.style.width = e.target.value + '%';
+});
+document.getElementById('showGrid').addEventListener('change', e => {
+  grid.hidden = !e.target.checked;
+});
+
+let timer = setInterval(loadSvg, 1000);
+document.getElementById('autoReload').addEventListener('change', e => {
+  clearInterval(timer);
+  if (e.target.checked) timer = setInterval(loadSvg, 1000);
+});
+
+/* Hover readout in viewBox units, so coordinates can be pasted straight into the SVG. */
+stage.addEventListener('mousemove', e => {
+  const r = stage.getBoundingClientRect();
+  const x = Math.round((e.clientX - r.left) / r.width  * VB.w);
+  const y = Math.round((e.clientY - r.top)  / r.height * VB.h);
+  readout.textContent = x + ', ' + y;
+});
+stage.addEventListener('mouseleave', () => { readout.textContent = '—'; });
+
+loadSvg();
+</script>
+</body>
+</html>
