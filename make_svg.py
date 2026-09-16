@@ -87,6 +87,37 @@ BODY_LINES = """<g id="body" class="ink">
 </g>
 """
 
+DETAIL_LINES = """<g id="window" class="ink">
+<path d="M 1280 314 1650 314" />
+<path d="M 1280 314 1280 100" />
+<path d="M 1280 100 C 1484 102 1442 103 1650 314" />
+</g>
+
+<g id="handle" class="ink">
+<rect x="1320" y="397" width="100" height="20" rx="5" />
+</g>
+
+<g id="bullbar" class="ink">
+<rect x="1911" y="700" width="25" height="10" />
+<rect x="1911" y="730" width="25" height="10" />
+<rect x="1937" y="675" width="20" height="100" rx="10" />
+</g>
+
+<g id="rear-light" class="ink">
+<path d="M 97 600 140 600" />
+<path d="M 110 430 C 166 430 157 469 140 600" />
+</g>
+
+<g id="front-light" class="ink">
+<path d="M 1835 665 1880 665" />
+<path d="M 1835 665 C 1839 618 1837 591 1865 590" />
+</g>
+
+<g id="tailpipe" class="ink">
+<rect x="10" y="720" width="42" height="30" rx="5" />
+</g>
+"""
+
 
 GENERATED = (
     make_group("left_well", wheel_well(455, BASE))
@@ -101,6 +132,8 @@ BODY = f"""{SVG_HEADER}
 {STYLE}
 
 {BODY_LINES}
+
+{DETAIL_LINES}
 
 {GENERATED}
 
