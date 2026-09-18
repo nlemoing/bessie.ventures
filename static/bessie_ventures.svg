@@ -11,66 +11,53 @@ stroke-linejoin="round">
 .ink   {stroke: #111; }
 .thin  {stroke - width: 4; }
 .thick {stroke - width: 9; }
-.fill-red    {fill: #e8908c; stroke: none; }
-.fill-yellow {fill: #efe6a8; stroke: none; }
-.fill-grey   {fill: #b8b5b2; stroke: none; }
-.fill-ink    {fill: #111;    stroke: none; }
+.fill-white {fill: #ffffff; }
+.fill-grey   {fill: #b8b5b2; }
 </style>
 
 
-<g id="body" class="ink">
-<path d="M 250 10 1380 10 "/>
-<path d="M 1380 10 C 1463 23 1574 205 1840 460"/>
-<path d="M 250 10 C 134 54 106 480 85 660"/>
-<path d="M 85 660 C 52 660 52 660 52 760"/>
-<path d="M 1885 760 C 1920 760 1920 670 1885 670" />
-<path d="M 1885 670 1840 460" />
-
-<path d="M 53 760 331 760"/>
-<path d="M 579 760 1316 760" />
-<path d="M 1564 760 1885 760" />
+<g id="body" class="ink fill-white">
+<path d="M 250 10 C 134 54 106 480 85 660 C 52 660 52 660 52 760
+    L 331 760
+    C 331 635 331 635 400 635 L 510 635 C 579 635 579 635 579 760
+    L 1316 760
+    C 1316 635 1316 635 1385 635 L 1495 635 C 1564 635 1564 635 1564 760
+    L 1885 760
+    C 1920 760 1920 670 1885 670 L 1840 460 C 1574 205 1463 23 1380 10 Z
+    "/>
 </g>
 
 
-<g id="window" class="ink">
-<path d="M 1280 314 1650 314" />
-<path d="M 1280 314 1280 100" />
-<path d="M 1280 100 C 1484 102 1442 103 1650 314" />
+<g id="window" class="ink fill-grey">
+<path d="M 1280 100 C 1484 102 1442 103 1650 314 L 1280 314 Z" />
 </g>
 
-<g id="handle" class="ink">
+<g id="handle" class="ink fill-grey">
 <rect x="1320" y="397" width="100" height="20" rx="5" />
 </g>
 
-<g id="bullbar" class="ink">
+<g id="bullbar" class="ink fill-grey">
 <rect x="1911" y="700" width="25" height="10" />
 <rect x="1911" y="730" width="25" height="10" />
 <rect x="1937" y="675" width="20" height="100" rx="10" />
 </g>
 
-<g id="rear-light" class="ink">
-<path d="M 97 600 140 600" />
-<path d="M 110 430 C 166 430 157 469 140 600" />
-</g>
-
-<g id="front-light" class="ink">
-<path d="M 1835 665 1880 665" />
-<path d="M 1835 665 C 1839 618 1837 591 1865 590" />
-</g>
-
-<g id="tailpipe" class="ink">
+<g id="tailpipe" class="ink fill-grey">
 <rect x="10" y="720" width="42" height="30" rx="5" />
 </g>
 
-
-<g id="left_well" class="ink">
-<path d="M 331 760 C 331 635 331 635 400 635" />
-<path d="M 400 635 510 635" />
-<path d="M 579 760 C 579 635 579 635 510 635" />
+<g id="rear-light" class="ink fill-grey">
+<path d="M 111 430 C 166 430 157 469 140 600 L 93 600 Z" />
 </g>
+
+<g id="front-light" class="ink fill-grey">
+<path d="M 1835 665 C 1839 618 1837 591 1867 590 L 1884 665 Z" />
+</g>
+
+
 <g id="left_wheel" class="ink">
-<circle cx="455"  cy="760" r="100" />
-<circle cx="455"  cy="760" r="70" />
+<circle cx="455"  cy="760" r="100" class="fill-grey" />
+<circle cx="455"  cy="760" r="70" class="fill-white" />
 <line x1="475.0" x2="514.6767165441654" y1="760.0" y2="723.4118939748539" />
 <line x1="475.0" x2="514.6767165441654" y1="760.0" y2="796.5881060251461" />
 <line x1="461.180339887499" x2="508.2384762347569" y1="779.0211303259031" y2="805.4495835866647" />
@@ -82,14 +69,9 @@ stroke-linejoin="round">
 <line x1="461.1803398874989" x2="438.6437629265305" y1="740.9788696740969" y2="691.9377233058101" />
 <line x1="461.1803398874989" x2="508.2384762347569" y1="740.9788696740969" y2="714.5504164133353" />
 </g>
-<g id="right_well" class="ink">
-<path d="M 1316 760 C 1316 635 1316 635 1385 635" />
-<path d="M 1385 635 1495 635" />
-<path d="M 1564 760 C 1564 635 1564 635 1495 635" />
-</g>
 <g id="right_wheel" class="ink">
-<circle cx="1440"  cy="760" r="100" />
-<circle cx="1440"  cy="760" r="70" />
+<circle cx="1440"  cy="760" r="100" class="fill-grey" />
+<circle cx="1440"  cy="760" r="70" class="fill-white" />
 <line x1="1460.0" x2="1499.6767165441654" y1="760.0" y2="723.4118939748539" />
 <line x1="1460.0" x2="1499.6767165441654" y1="760.0" y2="796.5881060251461" />
 <line x1="1446.180339887499" x2="1493.238476234757" y1="779.0211303259031" y2="805.4495835866647" />

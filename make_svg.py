@@ -1,6 +1,27 @@
 from math import cos, pi, sin
 
-BASE = 760
+WHEEL_WIDTH = 248
+WHEEL_BASE = 760
+WHEEL_LEFT_X = 455
+WHEEL_RIGHT_X = 1440
+
+STYLE = """<style>
+.ink   {stroke: #111; }
+.thin  {stroke - width: 4; }
+.thick {stroke - width: 9; }
+.fill-white {fill: #ffffff; }
+.fill-grey   {fill: #b8b5b2; }
+</style>
+"""
+
+SVG_HEADER = """<svg xmlns="http://www.w3.org/2000/svg"
+viewBox="0 0 2000 982"
+width="2000" height="982"
+fill="none"
+stroke="#111"
+stroke-width="6"
+stroke-linecap="round"
+stroke-linejoin="round">"""
 
 
 def point_on_circle(theta, x, y, r):
@@ -22,26 +43,25 @@ def wheel(x: int, y: int):
         and (p3 := point_on_circle(theta + inner_skew, x, y, inner_radius))
     ]
     return [
-        f'<circle cx="{x}"  cy="{y}" r="100" />',
-        f'<circle cx="{x}"  cy="{y}" r="{inner_radius}" />',
+        f'<circle cx="{x}"  cy="{y}" r="100" class="fill-grey" />',
+        f'<circle cx="{x}"  cy="{y}" r="{inner_radius}" class="fill-white" />',
         *wheel_lines,
     ]
 
 
 def wheel_well(x, y):
     well_height = 125
-    well_width = 248
     well_slope = 69
 
     y_top = y - well_height
-    x_left = x - (well_width // 2)
-    x_right = x + (well_width // 2)
+    x_left = x - (WHEEL_WIDTH // 2)
+    x_right = x + (WHEEL_WIDTH // 2)
 
-    return [
-        f'<path d="M {x_left} {y} C {x_left} {y_top} {x_left} {y_top} {x_left + well_slope} {y_top}" />',
-        f'<path d="M {x_left + well_slope} {y_top} {x_right - well_slope} {y_top}" />',
-        f'<path d="M {x_right} {y} C {x_right} {y_top} {x_right} {y_top} {x_right - well_slope} {y_top}" />',
-    ]
+    return (
+        f"C {x_left} {y_top} {x_left} {y_top} {x_left + well_slope} {y_top} "
+        + f"L {x_right - well_slope} {y_top} "
+        + f"C {x_right} {y_top} {x_right} {y_top} {x_right} {y}"
+    )
 
 
 def make_group(name, lines):
@@ -53,77 +73,48 @@ def make_group(name, lines):
     return s
 
 
-STYLE = """<style>
-.ink   {stroke: #111; }
-.thin  {stroke - width: 4; }
-.thick {stroke - width: 9; }
-.fill-red    {fill: #e8908c; stroke: none; }
-.fill-yellow {fill: #efe6a8; stroke: none; }
-.fill-grey   {fill: #b8b5b2; stroke: none; }
-.fill-ink    {fill: #111;    stroke: none; }
-</style>
-"""
-
-SVG_HEADER = """<svg xmlns="http://www.w3.org/2000/svg"
-viewBox="0 0 2000 982"
-width="2000" height="982"
-fill="none"
-stroke="#111"
-stroke-width="6"
-stroke-linecap="round"
-stroke-linejoin="round">"""
-
-BODY_LINES = """<g id="body" class="ink">
-<path d="M 250 10 1380 10 "/>
-<path d="M 1380 10 C 1463 23 1574 205 1840 460"/>
-<path d="M 250 10 C 134 54 106 480 85 660"/>
-<path d="M 85 660 C 52 660 52 660 52 760"/>
-<path d="M 1885 760 C 1920 760 1920 670 1885 670" />
-<path d="M 1885 670 1840 460" />
-
-<path d="M 53 760 331 760"/>
-<path d="M 579 760 1316 760" />
-<path d="M 1564 760 1885 760" />
+BODY_LINES = f"""<g id="body" class="ink fill-white">
+<path d="M 250 10 C 134 54 106 480 85 660 C 52 660 52 660 52 {WHEEL_BASE}
+    L {WHEEL_LEFT_X - (WHEEL_WIDTH // 2)} {WHEEL_BASE}
+    {wheel_well(WHEEL_LEFT_X, WHEEL_BASE)}
+    L {WHEEL_RIGHT_X - (WHEEL_WIDTH // 2)} {WHEEL_BASE}
+    {wheel_well(WHEEL_RIGHT_X, WHEEL_BASE)}
+    L 1885 {WHEEL_BASE}
+    C 1920 760 1920 670 1885 670 L 1840 460 C 1574 205 1463 23 1380 10 Z
+    "/>
 </g>
 """
 
-DETAIL_LINES = """<g id="window" class="ink">
-<path d="M 1280 314 1650 314" />
-<path d="M 1280 314 1280 100" />
-<path d="M 1280 100 C 1484 102 1442 103 1650 314" />
+DETAIL_LINES = """<g id="window" class="ink fill-grey">
+<path d="M 1280 100 C 1484 102 1442 103 1650 314 L 1280 314 Z" />
 </g>
 
-<g id="handle" class="ink">
+<g id="handle" class="ink fill-grey">
 <rect x="1320" y="397" width="100" height="20" rx="5" />
 </g>
 
-<g id="bullbar" class="ink">
+<g id="bullbar" class="ink fill-grey">
 <rect x="1911" y="700" width="25" height="10" />
 <rect x="1911" y="730" width="25" height="10" />
 <rect x="1937" y="675" width="20" height="100" rx="10" />
 </g>
 
-<g id="rear-light" class="ink">
-<path d="M 97 600 140 600" />
-<path d="M 110 430 C 166 430 157 469 140 600" />
-</g>
-
-<g id="front-light" class="ink">
-<path d="M 1835 665 1880 665" />
-<path d="M 1835 665 C 1839 618 1837 591 1865 590" />
-</g>
-
-<g id="tailpipe" class="ink">
+<g id="tailpipe" class="ink fill-grey">
 <rect x="10" y="720" width="42" height="30" rx="5" />
+</g>
+
+<g id="rear-light" class="ink fill-grey">
+<path d="M 111 430 C 166 430 157 469 140 600 L 93 600 Z" />
+</g>
+
+<g id="front-light" class="ink fill-grey">
+<path d="M 1835 665 C 1839 618 1837 591 1867 590 L 1884 665 Z" />
 </g>
 """
 
 
-GENERATED = (
-    make_group("left_well", wheel_well(455, BASE))
-    + make_group("left_wheel", wheel(455, BASE))
-    + make_group("right_well", wheel_well(1440, BASE))
-    + make_group("right_wheel", wheel(1440, BASE))
+GENERATED = make_group("left_wheel", wheel(WHEEL_LEFT_X, WHEEL_BASE)) + make_group(
+    "right_wheel", wheel(WHEEL_RIGHT_X, WHEEL_BASE)
 )
 
 
