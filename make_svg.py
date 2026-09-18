@@ -4,13 +4,16 @@ WHEEL_WIDTH = 248
 WHEEL_BASE = 760
 WHEEL_LEFT_X = 455
 WHEEL_RIGHT_X = 1440
+WHEEL_INNER_RADIUS = 70
+WHEEL_OUTER_RADIUS = 100
 
 STYLE = """<style>
 .ink   {stroke: #111; }
 .thin  {stroke - width: 4; }
 .thick {stroke - width: 9; }
-.fill-white {fill: #ffffff; }
-.fill-grey   {fill: #b8b5b2; }
+.fill-white       {fill: #ffffff; }
+.fill-grey        {fill: #b8b5b2; }
+.fill-transparent {fill: "transparent"; }
 </style>
 """
 
@@ -25,28 +28,40 @@ stroke-linejoin="round">"""
 
 
 def point_on_circle(theta, x, y, r):
-    return x + r * cos(theta), y + r * sin(theta)
+    dx = x + r * cos(theta)
+    dy = y + r * sin(theta)
+    return f"{dx} {dy}"
 
 
-def wheel(x: int, y: int):
-    inner_radius = 70
+def wheel_spokes(x: int, y: int):
+    WHEEL_INNER_RADIUS = 70
     inner_spoke_radius = 20
     inner_skew = 0.55
     base_angles = [i * 2 * pi / 5 for i in range(5)]
 
-    wheel_lines = [
-        f'<line x1="{p1[0]}" x2="{p2[0]}" y1="{p1[1]}" y2="{p2[1]}" />\n'
-        + f'<line x1="{p1[0]}" x2="{p3[0]}" y1="{p1[1]}" y2="{p3[1]}" />'
-        for theta in base_angles
-        if (p1 := point_on_circle(theta, x, y, inner_spoke_radius))
-        and (p2 := point_on_circle(theta - inner_skew, x, y, inner_radius))
-        and (p3 := point_on_circle(theta + inner_skew, x, y, inner_radius))
-    ]
-    return [
-        f'<circle cx="{x}"  cy="{y}" r="100" class="fill-grey" />',
-        f'<circle cx="{x}"  cy="{y}" r="{inner_radius}" class="fill-white" />',
-        *wheel_lines,
-    ]
+    path = ""
+    for i, theta in enumerate(base_angles):
+        init = "L" if i else "M"
+        path += f"{init} {point_on_circle(theta, x, y, WHEEL_INNER_RADIUS)} "
+        path += f"L {point_on_circle(theta + inner_skew, x, y, inner_spoke_radius)} "
+        path += (
+            f"L {point_on_circle(theta + 2 * inner_skew, x, y, WHEEL_INNER_RADIUS)} "
+        )
+    path += "Z"
+
+    return f'<path d="{path}" class="fill-grey" />'
+
+
+def wheel(label, x, y):
+    return f"""
+<mask id="{label}">
+    <circle cx="{x}"  cy="{y}" r="{WHEEL_OUTER_RADIUS + 20}" fill="white" />
+    <circle cx="{x}"  cy="{y}" r="{WHEEL_INNER_RADIUS}" fill="black" />
+</mask>
+<circle cx="{x}"  cy="{y}" r="{WHEEL_OUTER_RADIUS}" class="fill-grey" mask="url(#{label})" />
+<circle cx="{x}"  cy="{y}" r="{WHEEL_INNER_RADIUS}" />
+{wheel_spokes(x, y)}
+    """
 
 
 def wheel_well(x, y):
@@ -62,15 +77,6 @@ def wheel_well(x, y):
         + f"L {x_right - well_slope} {y_top} "
         + f"C {x_right} {y_top} {x_right} {y_top} {x_right} {y}"
     )
-
-
-def make_group(name, lines):
-    s = f'<g id="{name}" class="ink">\n'
-    for line in lines:
-        s += line
-        s += "\n"
-    s += "</g>\n"
-    return s
 
 
 BODY_LINES = f"""<g id="body" class="ink fill-white">
@@ -113,11 +119,6 @@ DETAIL_LINES = """<g id="window" class="ink fill-grey">
 """
 
 
-GENERATED = make_group("left_wheel", wheel(WHEEL_LEFT_X, WHEEL_BASE)) + make_group(
-    "right_wheel", wheel(WHEEL_RIGHT_X, WHEEL_BASE)
-)
-
-
 BODY = f"""{SVG_HEADER}
 
 {STYLE}
@@ -126,7 +127,9 @@ BODY = f"""{SVG_HEADER}
 
 {DETAIL_LINES}
 
-{GENERATED}
+{wheel("left_wheel", WHEEL_LEFT_X, WHEEL_BASE)}
+
+{wheel("right_wheel", WHEEL_RIGHT_X, WHEEL_BASE)}
 
 </svg>
 """
