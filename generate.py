@@ -19,7 +19,7 @@ STYLE = """<style>
 
 SVG_HEADER = """<svg xmlns="http://www.w3.org/2000/svg"
 id="vanimation"
-viewBox="-1000 0 4000 1000"
+viewBox="0 -50 1900 860"
 class="svg-overlay hidable hidden"
 fill="none"
 stroke="#111"
@@ -159,3 +159,5 @@ if __name__ == "__main__":
     final = template.replace("{{VANIMATION}}", BODY)
     with open("static/index.html", "w") as f:
         f.write(final)
+    with open("static/favicon.svg", "w") as f:
+        f.write(BODY)
