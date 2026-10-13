@@ -1,3 +1,4 @@
+import xml.etree.ElementTree as ET
 from math import cos, pi, sin
 
 WHEEL_WIDTH = 248
@@ -9,8 +10,7 @@ WHEEL_OUTER_RADIUS = 100
 
 STYLE = """<style>
 .ink   {stroke: #111; }
-.thin  {stroke - width: 4; }
-.thick {stroke - width: 9; }
+.hidden-title {fill: #e6cc00; stroke: #e6cc00; }
 .fill-white       {fill: #ffffff; }
 .fill-grey        {fill: #b8b5b2; }
 .fill-transparent {fill: "transparent"; }
@@ -18,8 +18,9 @@ STYLE = """<style>
 """
 
 SVG_HEADER = """<svg xmlns="http://www.w3.org/2000/svg"
-viewBox="0 0 2000 982"
-width="2000" height="982"
+id="vanimation"
+viewBox="-1000 0 4000 1000"
+class="svg-overlay hidable hidden"
 fill="none"
 stroke="#111"
 stroke-width="6"
@@ -121,9 +122,23 @@ DETAIL_LINES = """<g id="window" class="ink fill-grey">
 """
 
 
+def title():
+    ET.register_namespace("", "http://www.w3.org/2000/svg")
+    tree = ET.parse("title.svg")
+    root = tree.getroot()
+    path = root[0]
+    for attr in ("id", "fill", "stroke", "stroke-width"):
+        del path.attrib[attr]
+    path.set("id", "hidden-title")
+    path.set("class", "hidden-title")
+    return ET.tostring(path).decode("utf-8")
+
+
 BODY = f"""{SVG_HEADER}
 
 {STYLE}
+
+{title()}
 
 <g id="bessie">
 {BODY_LINES}
@@ -139,5 +154,8 @@ BODY = f"""{SVG_HEADER}
 """
 
 if __name__ == "__main__":
-    with open("static/bessie_ventures.svg", "w") as f:
-        f.write(BODY)
+    with open("index.template.html") as t:
+        template = t.read()
+    final = template.replace("{{VANIMATION}}", BODY)
+    with open("static/index.html", "w") as f:
+        f.write(final)
