@@ -54,13 +54,15 @@ def wheel_spokes(x: int, y: int):
 
 def wheel(label, x, y):
     return f"""
-<mask id="{label}">
+<g id="{label}">
+<mask id="{label}_mask">
     <circle cx="{x}"  cy="{y}" r="{WHEEL_OUTER_RADIUS + 20}" fill="white" />
     <circle cx="{x}"  cy="{y}" r="{WHEEL_INNER_RADIUS}" fill="black" />
 </mask>
-<circle cx="{x}"  cy="{y}" r="{WHEEL_OUTER_RADIUS}" class="fill-grey" mask="url(#{label})" />
+<circle cx="{x}"  cy="{y}" r="{WHEEL_OUTER_RADIUS}" class="fill-grey" mask="url(#{label}_mask)" />
 <circle cx="{x}"  cy="{y}" r="{WHEEL_INNER_RADIUS}" />
 {wheel_spokes(x, y)}
+</g>
     """
 
 
@@ -123,6 +125,7 @@ BODY = f"""{SVG_HEADER}
 
 {STYLE}
 
+<g id="bessie">
 {BODY_LINES}
 
 {DETAIL_LINES}
@@ -130,6 +133,7 @@ BODY = f"""{SVG_HEADER}
 {wheel("left_wheel", WHEEL_LEFT_X, WHEEL_BASE)}
 
 {wheel("right_wheel", WHEEL_RIGHT_X, WHEEL_BASE)}
+</g>
 
 </svg>
 """
